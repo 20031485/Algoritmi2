@@ -298,7 +298,7 @@ public class AdjListDir implements Graph{
 		fringe.add(sourceVertex);
 		time++;
 		distance++;
-		
+		print("\tBEGIN genericSearch");
 		//while some vertices are grey
 		while(!fringe.isEmpty()) {
 			
@@ -338,6 +338,7 @@ public class AdjListDir implements Graph{
 				distance++;
 			}
 		}
+		print("\tEND genericSearch");
 		//return forest populated with times, relationships and distances
 		return visitForest;
 	}
@@ -372,6 +373,7 @@ public class AdjListDir implements Graph{
 	@Override
 	public VisitForest getDFSTOTForest(int startingVertex)
 			throws UnsupportedOperationException, IllegalArgumentException {
+		print("\tBEGIN getDFSTOTForest");
 		if(containsVertex(startingVertex)) {
 			VisitForest visitForest = new VisitForest(this, VisitType.DFS_TOT);
 			visitForest = genericSearch(vertices.get(startingVertex).getValue(), new Stack<Integer>(), visitForest);
@@ -380,6 +382,7 @@ public class AdjListDir implements Graph{
 					visitForest = genericSearch(u.getValue(), new Stack<Integer>(), visitForest);
 				}
 			}
+			print("\tEND getDFSTOTForest");
 			return visitForest;
 		}
 		else
@@ -459,6 +462,25 @@ public class AdjListDir implements Graph{
 	}
 
 	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+//		   mmm    mm   mmmmm  mmmmm   mmmm    mmm  mmmmm  m       mmmm 
+//		 m"   "   ##   #   "#   #    #"   " m"   "   #    #      m"  "m
+//		 #       #  #  #mmm#"   #    "#mmm  #        #    #      #    #
+//		 #       #mm#  #        #        "# #        #    #      #    #
+//		  "mmm" #    # #      mm#mm  "mmm#"  "mmm" mm#mm  #mmmmm  #mm# 
+
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
+	//TODO
 	//Kosaraju's algorithm for calculating SCCs
 	@Override
 	public Set<Set<Integer>> stronglyConnectedComponents() throws UnsupportedOperationException {
@@ -467,7 +489,7 @@ public class AdjListDir implements Graph{
 //		if(this.isDAG())
 //			throw new UnsupportedOperationException("Cannot find SCC of a DAG!");
 		
-		HashSet<HashSet<Integer>> allSCCs = new HashSet<>();
+		Set<Set<Integer>> allSCCs = new HashSet<>();
 		
 		
 		//visita di tutti i vertici del grafo originale
@@ -494,8 +516,25 @@ public class AdjListDir implements Graph{
 			visited.add(new VisitedVertex(i, visitForest.getStartTime(i), visitForest.getEndTime(i)));
 		}
 		
+		print("\n>before sorting");
+		for(int i = 0; i < visited.size(); ++i) {
+			print(	"vertex: " + visited.get(i).getVertex() + " " +
+					"start: " + visited.get(i).getStart() + " " +
+					"end: " + visited.get(i).getEnd());
+			
+		}
+		
 		//ordino i vertici in ordine decrescente di tempi di fine visita
 		visited.sort((VisitedVertex v1, VisitedVertex v2) -> v2.getEnd() - v1.getEnd());
+		
+		print("\n>after sorting");
+//		check-print of the sorted list
+		for(int i = 0; i < visited.size(); ++i) {
+			print(	"vertex: " + visited.get(i).getVertex() + " " +
+					"start: " + visited.get(i).getStart() + " " +
+					"end: " + visited.get(i).getEnd());
+			
+		}
 		
 		//a questo punto, ho una lista contenente gli indici dei vertici ordinati per tempo di fine visita decrescente
 		//devo ora visitare il grafo trasposto seguendo questo ordine, quindi:
@@ -519,14 +558,12 @@ public class AdjListDir implements Graph{
 					//aggiungo ogni vertice nero (?) alla singola CFC
 					if(visitTransposedForest.getColor(j) == Color.BLACK) {
 						singleSCC.add(j);
-						print("added "+j+" to singleSCC");
+						print("added " + j + " to singleSCC");
 					}
 				}
 				//aggiungo la CFC al gruppo delle CFC
 				allSCCs.add(singleSCC);
-//				for(int j = 0; j < allSCCs.size(); ++j) {
-//					print(""+allSCCs.)
-//				}
+
 				print(">>all SCCs");
 				print(allSCCs.toString());
 			}
@@ -535,34 +572,11 @@ public class AdjListDir implements Graph{
 		
 		
 		
-//		check-print of the sorted list
-//		for(int i = 0; i < endList.size(); ++i) {
-//			print(	"vertex: " + visited.get(i).getVertex() + " " +
-//					"start: " + visited.get(i).getStart() + " " +
-//					"end: " + visited.get(i).getEnd());
-//			
-//		}
+
 		
 		//vedere step 3 di kosaraju, mi sa che c'è da fare un po' di teoria prima
 		//TODO: riseguire la lezione sulle CC e CFC e poi ritentare
-		
-//		VisitForest visitForestKosaraju = new VisitForest(this, VisitType.DFS_TOT);
-//		print("\tkosaraju");
-//		for(VisitedVertex vv : visited) {
-//			print(vv.getValue() + ": ");
-//			//visitTransposedForest seguendo l'ordine dei vertici nella LinkedList visited
-//			if(visitForest.getColor(vv.getValue()) == Color.WHITE) {
-//				visitForestKosaraju = genericSearch(vv.getValue(), new Stack<Integer>(), visitForestKosaraju);
-//				print("\tkosaraju");
-//				for(int i = 0; i < size(); ++i) {
-//					print(	"i: " + i + " " +
-//							"start: " + visitForest.getStartTime(i) + " " +  
-//							"end: " + visitForest.getEndTime(i));
-//				}
-//			}
-//		}
-//		
-		return null;
+		return allSCCs;
 	}
 
 	@Override
