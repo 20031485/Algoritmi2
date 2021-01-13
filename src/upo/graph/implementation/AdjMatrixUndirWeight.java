@@ -27,22 +27,47 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		weight = new double [this.size()][this.size()];
 		for(int i=0; i<this.size(); ++i) {
 			for(int j=0; j<this.size(); ++j) {
-				if(i == j)	weight[i][j]= 0;	//riempio la diagonale di zeri
-				else weight[i][j] = Double.MAX_VALUE; //fill all distances with infinity (max double val)
+				if(i == j)	
+					weight[i][j]= 0;	//riempio la diagonale di zeri
+				else 
+					weight[i][j] = Double.MAX_VALUE; //fill all distances with infinity (max double val)
 			}
 		}
 	}
 	
 	void print() {
-		for(int i = 0; i < weight.length; ++i) {
-			System.out.print(i+": ");
-			for(int j = 0; j < weight.length; ++j)
-				if(weight[i][j] == Double.MAX_VALUE)
-					System.out.print("\t[+inf]");
-				else
-					System.out.print("\t["+weight[i][j]+"]");
-			System.out.println();
+		if(weight == null) {
+			print("there are no vertices yet!");
 		}
+		else {
+			System.out.print("=");
+			for(int i = 0; i < weight.length; ++i)
+				System.out.print("\t==");
+			
+			System.out.print("\t==\n\t");
+			for(int i = 0; i < weight.length; ++i)
+				System.out.print(i+"\t");
+			System.out.println("\n");
+			for(int i = 0; i < weight.length; ++i) {
+				System.out.print(i+"");
+				for(int j = 0; j < weight.length; ++j)
+					if(weight[i][j] == Double.MAX_VALUE)
+						System.out.print("\t[+inf]");
+					else
+						System.out.print("\t["+weight[i][j]+"]");
+				System.out.println();
+			}
+			System.out.print("==");
+			for(int i = 0; i < weight.length; ++i)
+				System.out.print("\t==");
+			
+			System.out.print("\t==\n");
+	
+		}
+	}
+	
+	private void print(String debugMsg) {
+		System.out.println(debugMsg);
 	}
 	
 	@Override
@@ -75,7 +100,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	
 	@Override
 	public boolean containsVertex(int index) {
-		if(index < weight.length)
+		if(index < weight.length && index >= 0)
 			return true;
 		return false;
 	}
@@ -109,6 +134,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		}
 	}
 	
+	//interactive method for adding a new weighted edge between two vertices
 	@Override
 	public void addEdge(int sourceVertexIndex, int targetVertexIndex) throws IllegalArgumentException {
 		if(!(sourceVertexIndex >= 0 && sourceVertexIndex < weight.length)
@@ -130,6 +156,30 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		else
 			System.out.println("That edge already exists!");
 	}
+	
+	//adds an edge with a certain weight between two vertices
+	public void addEdge(int sourceVertexIndex, int targetVertexIndex, double weight) {
+		if(!(sourceVertexIndex >= 0 && sourceVertexIndex < this.weight.length)
+				|| !(targetVertexIndex >= 0 && targetVertexIndex < this.weight.length))
+			throw new IllegalArgumentException();
+		if(this.weight[sourceVertexIndex][targetVertexIndex] == Double.MAX_VALUE) {
+			this.weight[sourceVertexIndex][targetVertexIndex] = weight;
+			this.weight[targetVertexIndex][sourceVertexIndex] = weight; //matrix must be symmetrical
+		}
+		else
+			System.out.println("That edge already exists!");
+	}
+	
+	//NON SERVE: c'è già setEdgeWeight
+//	//updates the edge between source and target with weight
+//	public void putEdge(int sourceVertexIndex, int targetVertexIndex, double weight) {
+//		if(!(sourceVertexIndex >= 0 && sourceVertexIndex < this.weight.length)
+//				|| !(targetVertexIndex >= 0 && targetVertexIndex < this.weight.length))
+//			throw new IllegalArgumentException();
+//		this.weight[sourceVertexIndex][targetVertexIndex] = weight;
+//		this.weight[targetVertexIndex][sourceVertexIndex] = weight; //matrix must be symmetrical
+//		
+//	}
 	
 	@Override
 	public boolean containsEdge(int sourceVertexIndex, int targetVertexIndex) throws IllegalArgumentException {
@@ -219,18 +269,19 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	
 	@Override
 	public boolean isDirected() {
+		//this graph is not directed by definition
 		return false;
 	}
 	
 	@Override
 	public boolean isCyclic() {
-		//False because I cannot use BFS or DFS to visit it
+		//TODO this might come in handy, let's see if we have to implement it
 		return false;
 	}
 	
 	@Override
 	public boolean isDAG() {
-		//it's not directed!
+		//this graph is not directed by definition
 		return false;
 	}
 	
@@ -280,27 +331,25 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	
 	
 	/*
-	 * TODO
+	 * TODO: sistemare la genericSearch perchè non funziona (sembrerebbe una BFS non totale, solo del pezzo di grafo connesso da cui parte)
 	 * */
 	@Override
 	public VisitForest getBFSTree(int startingVertex) throws UnsupportedOperationException, IllegalArgumentException {
-		/*if(!(startingVertex >= 0 && startingVertex < weight.length))
+		if(!(startingVertex >= 0 && startingVertex < weight.length))
 			throw new IllegalArgumentException();
 		return this.genericSearch(startingVertex, new Queue<Integer>(), new VisitForest(this, VisitType.BFS));
-		*/
-		throw new UnsupportedOperationException("This graph does not support BFS search operations!");
 	}
 	
 	/*
-	 * TODO
+	 * TODO: come per la BFS
 	 * */
 	@Override
 	public VisitForest getDFSTree(int startingVertex) throws UnsupportedOperationException, IllegalArgumentException {
-		/*if(!(startingVertex >= 0 && startingVertex < weight.length))
+		if(!(startingVertex >= 0 && startingVertex < weight.length))
 			throw new IllegalArgumentException();
 		return this.genericSearch(startingVertex, new Stack<Integer>(), new VisitForest(this, VisitType.DFS));
-		*/
-		throw new UnsupportedOperationException("This graph does not support DFS search operations!");
+		
+//		throw new UnsupportedOperationException("This graph does not support DFS search operations!");
 	}
 	
 	
@@ -330,17 +379,17 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	//no
 	@Override
 	public int[] topologicalSort() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("This graph does not support topological sorting operations!");
+		throw new UnsupportedOperationException("Topological sorting operations can be supported by a DAG - this is not a DAG!");
 	}
 	
 	@Override
 	public Set<Set<Integer>> stronglyConnectedComponents() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("This graph does not support SCC operations!");
+		throw new UnsupportedOperationException("This graph does not support SCC operations - this graph is not directed!");
 	}
 	
 	
 	/*
-	 * TODO
+	 * TODO: fargli supportare le CC
 	 * */
 	@Override
 	public Set<Set<Integer>> connectedComponents() throws UnsupportedOperationException {
