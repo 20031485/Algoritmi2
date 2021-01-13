@@ -290,7 +290,7 @@ public class AdjListDir implements Graph{
 	}
 
 	private VisitForest genericSearch(int sourceVertex, Fringe<Integer> fringe, VisitForest visitForest) {
-		int time = 0;
+//		int time = 0;
 		int distance = 0;
 		visitForest.setColor(sourceVertex, Color.GRAY);
 		visitForest.setStartTime(sourceVertex, time);
@@ -321,6 +321,7 @@ public class AdjListDir implements Graph{
 			
 			//if there are no adjacent vertices
 			if(v == null) {
+				print("\t\t[genericSearch]: setting " + u + " to " + Color.BLACK);
 				visitForest.setColor(u, Color.BLACK);
 				visitForest.setEndTime(u, time);
 				fringe.remove();
@@ -329,6 +330,7 @@ public class AdjListDir implements Graph{
 			
 			//if there is at least one adjacent vertex
 			else {
+				print("\t\t[genericSearch]: setting " + u + " to " + Color.GRAY);
 				visitForest.setColor(v, Color.GRAY);
 				visitForest.setStartTime(v, time);
 				visitForest.setDistance(v, distance);
@@ -356,16 +358,20 @@ public class AdjListDir implements Graph{
 	
 	@Override
 	public VisitForest getBFSTree(int startingVertex) throws UnsupportedOperationException, IllegalArgumentException {
-		if(containsVertex(startingVertex))
+		if(containsVertex(startingVertex)) {
+			time = 0;
 			return this.genericSearch(startingVertex, new Queue<Integer>(), new VisitForest(this, VisitType.BFS));
+		}
 		else
 			throw new IllegalArgumentException();
 	}
 
 	@Override
 	public VisitForest getDFSTree(int startingVertex) throws UnsupportedOperationException, IllegalArgumentException {
-		if(containsVertex(startingVertex))
+		if(containsVertex(startingVertex)) {
+			time = 0;
 			return this.genericSearch(startingVertex, new Stack<Integer>(), new VisitForest(this, VisitType.DFS));
+		}
 		else
 			throw new IllegalArgumentException();
 	}
@@ -374,15 +380,19 @@ public class AdjListDir implements Graph{
 	public VisitForest getDFSTOTForest(int startingVertex)
 			throws UnsupportedOperationException, IllegalArgumentException {
 		print("\tBEGIN getDFSTOTForest");
+		time = 0;
 		if(containsVertex(startingVertex)) {
 			VisitForest visitForest = new VisitForest(this, VisitType.DFS_TOT);
+			print("\n\t\tchoosing vertex " + startingVertex + " for DFSTOT");
 			visitForest = genericSearch(vertices.get(startingVertex).getValue(), new Stack<Integer>(), visitForest);
 			for(Vertex u : vertices) {
 				if(visitForest.getColor(u.getValue()) == Color.WHITE) {
+					print("\n\t\tchoosing vertex " + u.getValue() + " for DFSTOT");
 					visitForest = genericSearch(u.getValue(), new Stack<Integer>(), visitForest);
 				}
 			}
 			print("\tEND getDFSTOTForest");
+			print("roots: " + visitForest.getRoots().toString());
 			return visitForest;
 		}
 		else
@@ -484,75 +494,71 @@ public class AdjListDir implements Graph{
 	//Kosaraju's algorithm for calculating SCCs
 	@Override
 	public Set<Set<Integer>> stronglyConnectedComponents() throws UnsupportedOperationException {
-		//the next two lines need to be commented, as SCCs can always be found in a directed graph,
-		//even if it has cycles!
-//		if(this.isDAG())
-//			throw new UnsupportedOperationException("Cannot find SCC of a DAG!");
 		
+		//crea un set di set di interi (vertici)
 		Set<Set<Integer>> allSCCs = new HashSet<>();
-		
 		
 		//visita di tutti i vertici del grafo originale
 		VisitForest visitForest = getDFSTOTForest(0);
 		
 		//visita di tutti i vertici del grafo trasposto
 		VisitForest visitTransposedForest = null;
-		
-		//lista degli indici dei vertici, ordinata in ordine decrescente per tempo di fine visita
-		LinkedList<Integer> endList = new LinkedList<>();
-		
+
 		//lista dei vertici visitati (con tempi di visita)
 		LinkedList<VisitedVertex> visited = new LinkedList<>();
-		
-		//lista dei vertici visitati del grafo trasposto (con tempi di visita)
-		LinkedList<VisitedVertex> visitedKosaraju = new LinkedList<>();
 
 		//costruire una lista dei vertici in ordine decrescente dei tempi di fine visita
 		for(int i = 0; i < size(); ++i) {
-			print(	"i: " + i + " " +
-					"start: " + visitForest.getStartTime(i) + " " +  
-					"end: " + visitForest.getEndTime(i));
-			endList.add(visitForest.getEndTime(i));
 			visited.add(new VisitedVertex(i, visitForest.getStartTime(i), visitForest.getEndTime(i)));
 		}
-		
-		print("\n>before sorting");
-		for(int i = 0; i < visited.size(); ++i) {
-			print(	"vertex: " + visited.get(i).getVertex() + " " +
-					"start: " + visited.get(i).getStart() + " " +
-					"end: " + visited.get(i).getEnd());
-			
-		}
-		
+
 		//ordino i vertici in ordine decrescente di tempi di fine visita
+		print("\nsorting vertices according to their descending end times...");
 		visited.sort((VisitedVertex v1, VisitedVertex v2) -> v2.getEnd() - v1.getEnd());
 		
-		print("\n>after sorting");
-//		check-print of the sorted list
+		print("\nprinting next genericSearch order: ");
+		System.out.print("[");
 		for(int i = 0; i < visited.size(); ++i) {
-			print(	"vertex: " + visited.get(i).getVertex() + " " +
-					"start: " + visited.get(i).getStart() + " " +
-					"end: " + visited.get(i).getEnd());
-			
+			if(i == 0)
+				System.out.print(visited.get(i).getValue());
+			else
+				System.out.print(", " + visited.get(i).getValue());
 		}
+		System.out.print("]");
+		print("");
 		
 		//a questo punto, ho una lista contenente gli indici dei vertici ordinati per tempo di fine visita decrescente
 		//devo ora visitare il grafo trasposto seguendo questo ordine, quindi:
 		
+		print("\ntransposing starting graph...");
 		//traspongo il grafo
 		AdjListDir transposedGraph = this.transpose();
 		
+		print("\nvisiting transposed graph...");
 		//inizializzo un VisitForest che prende il grafo trasposto
 		visitTransposedForest = new VisitForest(transposedGraph, VisitType.DFS_TOT);
 		
-		//per ogni vertice di transposedGraph
+		print("\ncheck-printing transposedGraph...");
+		transposedGraph.print();
+		
+		print("\ncheck-printing visitTransposedForest BEFORE visit");
 		for(int i = 0; i < transposedGraph.size(); ++i) {
-			//se un vertice di visited è bianco
-			if(visitTransposedForest.getColor(i) != Color.BLACK) {
+			print("vertex " + i + ": start: " + visitTransposedForest.getStartTime(i) + " end:" + visitTransposedForest.getEndTime(i) + " color: " + visitTransposedForest.getColor(i));
+		}
+		
+		//zeroing visit time (to be used in the next genericSearch(es)
+		time = 0;
+		
+		//per ogni vertice di transposedGraph, nell'ordine trovato in visited
+		for(VisitedVertex vv : visited) {
+			print("\n\tstarting transposed visit from vertex " + vv.getValue() + " color: " + visitTransposedForest.getColor(vv.getValue()));
+			if(visitTransposedForest.getColor(vv.getValue()) == Color.WHITE) {
 				//creo una cfc singola
 				HashSet<Integer> singleSCC = new HashSet<>();
+				
 				//lancio su di esso la genericSearch(vertice, stack, visitTransposedForest);
-				visitTransposedForest = genericSearch(i, new Stack<Integer>(), visitTransposedForest);
+				print("genericSearch on transposed graph from vertex " + vv.getValue());
+				visitTransposedForest = genericSearch(vv.getValue(), new Stack<Integer>(), visitTransposedForest);
 				//per ogni vertice nero
 				for(int j = 0; j < transposedGraph.size(); ++j) {
 					//aggiungo ogni vertice nero (?) alla singola CFC
@@ -562,20 +568,18 @@ public class AdjListDir implements Graph{
 					}
 				}
 				//aggiungo la CFC al gruppo delle CFC
+				print("\nadding singleSCC to allSCCs...");
 				allSCCs.add(singleSCC);
 
-				print(">>all SCCs");
-				print(allSCCs.toString());
+				print(">>all SCCs: " + allSCCs.toString());
 			}
 		}
 		
-		
-		
-		
+		print("\ncheck-printing visitTransposedForest AFTER visit");
+		for(int i = 0; i < transposedGraph.size(); ++i) {
+			print("vertex " + i + ":\tstart: " + visitTransposedForest.getStartTime(i) + "\tend: " + visitTransposedForest.getEndTime(i) + "\t\tcolor: " + visitTransposedForest.getColor(i));
+		}
 
-		
-		//vedere step 3 di kosaraju, mi sa che c'è da fare un po' di teoria prima
-		//TODO: riseguire la lezione sulle CC e CFC e poi ritentare
 		return allSCCs;
 	}
 
@@ -587,21 +591,16 @@ public class AdjListDir implements Graph{
 	//transpose the current graph
 	private AdjListDir transpose() {
 		AdjListDir transposedGraph = new AdjListDir();
+		
 		for(int i = 0; i < this.size(); ++i) {
 			transposedGraph.addVertex();
 		}
-		
-//		print("\n\n");
-//		transposedGraph.print();
 		
 		for(int i = 0; i < transposedGraph.size(); ++i) {
 			for(Vertex v : this.vertices.get(i).getAdjacents()) {
 				transposedGraph.addEdge(v.getValue(), i);
 			}
-		}
-
-//		print("\n\ntransposed:");
-//		transposedGraph.print();
+		}	
 		
 		return transposedGraph;
 	}

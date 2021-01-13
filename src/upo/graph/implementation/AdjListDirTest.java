@@ -186,29 +186,37 @@ class AdjListDirTest {
 		AdjListDir ald = new AdjListDir();
 		assertNotNull(ald);
 		
-		for(int i = 0; i < 10; ++i) {
+		for(int i = 0; i < 6; ++i) {
 			ald.addVertex();
 		}
 		
-		ald.addEdge(0, 4);
-		ald.addEdge(0, 5);
-		ald.addEdge(1, 0);
+		ald.addEdge(0, 3);
+		ald.addEdge(3, 1);
+		ald.addEdge(3, 4);
+		ald.addEdge(1, 2);
 		ald.addEdge(2, 3);
-		ald.addEdge(2, 6);
-		ald.addEdge(2, 1);
-		ald.addEdge(3, 2);
-		ald.addEdge(4, 0);
-		ald.addEdge(4, 7);
-		ald.addEdge(5, 1);
+		ald.addEdge(4, 5);
 		ald.addEdge(5, 4);
-		ald.addEdge(5, 7);
-		ald.addEdge(6, 2);
-		ald.addEdge(6, 5);
-		ald.addEdge(6, 8);
-		ald.addEdge(2, 3);
-		ald.addEdge(8, 7);
-		ald.addEdge(8, 9);
-		ald.addEdge(9, 8);
+		
+//		ald.addEdge(0, 4);
+//		ald.addEdge(0, 5);
+//		ald.addEdge(1, 0);
+//		ald.addEdge(2, 3);
+//		ald.addEdge(2, 6);
+//		ald.addEdge(2, 1);
+//		ald.addEdge(3, 2);
+//		ald.addEdge(4, 0);
+//		ald.addEdge(4, 7);
+//		ald.addEdge(5, 1);
+//		ald.addEdge(5, 4);
+//		ald.addEdge(5, 7);
+//		ald.addEdge(6, 2);
+//		ald.addEdge(6, 5);
+//		ald.addEdge(6, 8);
+//		ald.addEdge(2, 3);
+//		ald.addEdge(8, 7);
+//		ald.addEdge(8, 9);
+//		ald.addEdge(9, 8);
 		
 		ald.print();
 		
