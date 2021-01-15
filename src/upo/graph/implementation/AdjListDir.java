@@ -291,14 +291,14 @@ public class AdjListDir implements Graph{
 
 	private VisitForest genericSearch(int sourceVertex, Fringe<Integer> fringe, VisitForest visitForest) {
 //		int time = 0;
-		int distance = 0;
+//		int distance = 0;
 		visitForest.setColor(sourceVertex, Color.GRAY);
 		visitForest.setStartTime(sourceVertex, time);
-		visitForest.setDistance(sourceVertex, distance);
+//		visitForest.setDistance(sourceVertex, distance);
 		fringe.add(sourceVertex);
 		time++;
-		distance++;
-		print("\tBEGIN genericSearch");
+//		distance++;
+//		print("\tBEGIN genericSearch");
 		//while some vertices are grey
 		while(!fringe.isEmpty()) {
 			
@@ -309,6 +309,7 @@ public class AdjListDir implements Graph{
 			
 			//get its adjacent vertices
 			Set<Integer> adjacentVertices = this.getAdjacent(u);
+//			print("\t>>>adjacents to " + u + ": " + adjacentVertices.toString());
 			
 			//for each adj vertex
 			for(Integer a : adjacentVertices) {
@@ -319,38 +320,38 @@ public class AdjListDir implements Graph{
 				}
 			}
 			
-			//if there are no adjacent vertices
+			//if u has no adjacent vertices
 			if(v == null) {
-				print("\t\t[genericSearch]: setting " + u + " to " + Color.BLACK);
+//				print("\t\t[genericSearch]: setting " + u + " to " + Color.BLACK);
 				visitForest.setColor(u, Color.BLACK);
 				visitForest.setEndTime(u, time);
 				fringe.remove();
 				time++;
 			}
 			
-			//if there is at least one adjacent vertex
+			//if u has at least one adjacent vertex
 			else {
-				print("\t\t[genericSearch]: setting " + u + " to " + Color.GRAY);
+//				print("\t\t[genericSearch]: setting " + u + " to " + Color.GRAY);
 				visitForest.setColor(v, Color.GRAY);
 				visitForest.setStartTime(v, time);
-				visitForest.setDistance(v, distance);
+//				visitForest.setDistance(v, distance);
 				visitForest.setParent(v, u);
 				fringe.add(v);
 				time++;
-				distance++;
+//				distance++;
 			}
 		}
-		print("\tEND genericSearch");
-		//return forest populated with times, relationships and distances
+//		print("\tEND genericSearch");
+		//return TREE (not forest) populated with times, relationships and distances
 		return visitForest;
 	}
 	
 	public void printVisit(VisitForest visitForest) {
 		for(int i = 0; i < vertices.size(); ++i) {
 			System.out.println(
-					"Vertex: "+vertices.get(i).getValue()+
-					" start: "+visitForest.getStartTime(i)+
-					" end: "+visitForest.getEndTime(i)//+
+					"vertex: "+vertices.get(i).getValue()+
+					"\tstart: "+visitForest.getStartTime(i)+
+					"\tend: "+visitForest.getEndTime(i)//+
 //					"distance: "+visitForest.getDistance(i)
 			);
 		}
@@ -379,50 +380,44 @@ public class AdjListDir implements Graph{
 	@Override
 	public VisitForest getDFSTOTForest(int startingVertex)
 			throws UnsupportedOperationException, IllegalArgumentException {
-		print("\tBEGIN getDFSTOTForest");
+		
+//		print("\tBEGIN getDFSTOTForest");
 		time = 0;
 		if(containsVertex(startingVertex)) {
 			VisitForest visitForest = new VisitForest(this, VisitType.DFS_TOT);
-			print("\n\t\tchoosing vertex " + startingVertex + " for DFSTOT");
+//			print("\n\t\tchoosing vertex " + startingVertex + " for DFSTOT");
 			visitForest = genericSearch(vertices.get(startingVertex).getValue(), new Stack<Integer>(), visitForest);
 			for(Vertex u : vertices) {
 				if(visitForest.getColor(u.getValue()) == Color.WHITE) {
-					print("\n\t\tchoosing vertex " + u.getValue() + " for DFSTOT");
+//					print("\n\t\tchoosing vertex " + u.getValue() + " for DFSTOT");
 					visitForest = genericSearch(u.getValue(), new Stack<Integer>(), visitForest);
 				}
 			}
-			print("\tEND getDFSTOTForest");
-			print("roots: " + visitForest.getRoots().toString());
+//			print("\tEND getDFSTOTForest");
+//			print("roots: " + visitForest.getRoots().toString());
 			return visitForest;
 		}
 		else
 			throw new IllegalArgumentException();
 	}
 
-	
-	/*
-	 * 
-	 * DA QUI - manca ciclo
-	 * TODO
-	 * 
-	 * 
-	 * */
 	//return visit order
 	@Override
 	public VisitForest getDFSTOTForest(int[] vertexOrdering)
 			throws UnsupportedOperationException, IllegalArgumentException {
+		if(vertexOrdering == null || vertexOrdering.length != this.size())
+			throw new IllegalArgumentException();
+
+		time = 0;
 		
 		VisitForest visitForest = new VisitForest(this, VisitType.DFS_TOT);
 		
-		for(Vertex u : vertices) {
-			if(visitForest.getColor(u.getValue()) == Color.WHITE) {
-				visitForest = genericSearch(u.getValue(), new Stack<Integer>(), visitForest);
+		for(int i = 0; i < this.size(); ++i) {
+			if(visitForest.getColor(vertexOrdering[i]) == Color.WHITE) {
+				visitForest = genericSearch(vertexOrdering[i], new Stack<Integer>(), visitForest);
 			}
 		}
-		
-		for(int i = 0; i < this.size(); ++i) {
-			vertexOrdering[visitForest.getStartTime(i)] = i;
-		}
+
 		return visitForest;
 	}
 
@@ -470,116 +465,74 @@ public class AdjListDir implements Graph{
 		time++;
 		t--;
 	}
-
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-//		   mmm    mm   mmmmm  mmmmm   mmmm    mmm  mmmmm  m       mmmm 
-//		 m"   "   ##   #   "#   #    #"   " m"   "   #    #      m"  "m
-//		 #       #  #  #mmm#"   #    "#mmm  #        #    #      #    #
-//		 #       #mm#  #        #        "# #        #    #      #    #
-//		  "mmm" #    # #      mm#mm  "mmm#"  "mmm" mm#mm  #mmmmm  #mm# 
-
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//TODO
-	//Kosaraju's algorithm for calculating SCCs
+	
 	@Override
 	public Set<Set<Integer>> stronglyConnectedComponents() throws UnsupportedOperationException {
-		
-		//crea un set di set di interi (vertici)
+		//initialize sets of integers (SCCs)
 		Set<Set<Integer>> allSCCs = new HashSet<>();
+		Set<Integer> singleSCC = null;
+		Set<Integer> auxSCC = new HashSet<>();
 		
-		//visita di tutti i vertici del grafo originale
+		//initialize graph and perform total DFS
 		VisitForest visitForest = getDFSTOTForest(0);
+
+		int vertexOrdering[] = new int[this.size()];
 		
-		//visita di tutti i vertici del grafo trasposto
-		VisitForest visitTransposedForest = null;
-
-		//lista dei vertici visitati (con tempi di visita)
+		//descend-sort vertices according to their end-visit time
 		LinkedList<VisitedVertex> visited = new LinkedList<>();
-
-		//costruire una lista dei vertici in ordine decrescente dei tempi di fine visita
 		for(int i = 0; i < size(); ++i) {
 			visited.add(new VisitedVertex(i, visitForest.getStartTime(i), visitForest.getEndTime(i)));
 		}
-
-		//ordino i vertici in ordine decrescente di tempi di fine visita
-		print("\nsorting vertices according to their descending end times...");
 		visited.sort((VisitedVertex v1, VisitedVertex v2) -> v2.getEnd() - v1.getEnd());
 		
-		print("\nprinting next genericSearch order: ");
-		System.out.print("[");
-		for(int i = 0; i < visited.size(); ++i) {
-			if(i == 0)
-				System.out.print(visited.get(i).getValue());
-			else
-				System.out.print(", " + visited.get(i).getValue());
-		}
-		System.out.print("]");
-		print("");
-		
-		//a questo punto, ho una lista contenente gli indici dei vertici ordinati per tempo di fine visita decrescente
-		//devo ora visitare il grafo trasposto seguendo questo ordine, quindi:
-		
-		print("\ntransposing starting graph...");
-		//traspongo il grafo
+		//fill vertexOrdering with the vertices' values (they are sorted by descending end-visit times)
+		for(int i = 0; i < vertexOrdering.length; ++i)
+			vertexOrdering[i] = visited.get(i).getValue();
+
+		//transpose graph
 		AdjListDir transposedGraph = this.transpose();
-		
-		print("\nvisiting transposed graph...");
-		//inizializzo un VisitForest che prende il grafo trasposto
-		visitTransposedForest = new VisitForest(transposedGraph, VisitType.DFS_TOT);
-		
-		print("\ncheck-printing transposedGraph...");
 		transposedGraph.print();
 		
-		print("\ncheck-printing visitTransposedForest BEFORE visit");
-		for(int i = 0; i < transposedGraph.size(); ++i) {
-			print("vertex " + i + ": start: " + visitTransposedForest.getStartTime(i) + " end:" + visitTransposedForest.getEndTime(i) + " color: " + visitTransposedForest.getColor(i));
-		}
+		//initialize handlers for the next DFSTOT search
+		VisitForest visitTransposedForest = new VisitForest(transposedGraph, VisitType.DFS_TOT);
+		VisitForest visitTransposedTree = null;
 		
-		//zeroing visit time (to be used in the next genericSearch(es)
-		time = 0;
-		
-		//per ogni vertice di transposedGraph, nell'ordine trovato in visited
-		for(VisitedVertex vv : visited) {
-			print("\n\tstarting transposed visit from vertex " + vv.getValue() + " color: " + visitTransposedForest.getColor(vv.getValue()));
-			if(visitTransposedForest.getColor(vv.getValue()) == Color.WHITE) {
-				//creo una cfc singola
-				HashSet<Integer> singleSCC = new HashSet<>();
-				
-				//lancio su di esso la genericSearch(vertice, stack, visitTransposedForest);
-				print("genericSearch on transposed graph from vertex " + vv.getValue());
-				visitTransposedForest = genericSearch(vv.getValue(), new Stack<Integer>(), visitTransposedForest);
-				//per ogni vertice nero
+		print("\n\n\n");
+		//perform DFS visit
+//		time = 0;
+		for(int i = 0; i < vertexOrdering.length; ++i) {
+			if(visitTransposedForest.getColor(vertexOrdering[i]) == Color.WHITE) {
+				print("vertexOrdering: " + vertexOrdering[i]);
+				time = 0;
+				visitTransposedTree = transposedGraph.getDFSTree(vertexOrdering[i]);
+//				time = 0;
+				visitTransposedForest = transposedGraph.genericSearch(vertexOrdering[i], new Stack<Integer>(), visitTransposedForest);
+				singleSCC = new HashSet<Integer>();
+//				print("\n\ntransposedTree");
+//				printVisit(visitTransposedTree);
+//				print("\n\ntransposedForest:");
+//				printVisit(visitTransposedForest);
 				for(int j = 0; j < transposedGraph.size(); ++j) {
-					//aggiungo ogni vertice nero (?) alla singola CFC
-					if(visitTransposedForest.getColor(j) == Color.BLACK) {
-						singleSCC.add(j);
-						print("added " + j + " to singleSCC");
+					
+					if(visitTransposedTree.getColor(j) == Color.BLACK) {
+						if(!auxSCC.contains(j)) {
+//							print("\tadding " + j + " to singleSCC");
+							singleSCC.add(j);
+						}
+						auxSCC.add(j);
 					}
+					
+//					print("aux: " + auxSCC.toString());
 				}
-				//aggiungo la CFC al gruppo delle CFC
-				print("\nadding singleSCC to allSCCs...");
+				
+//				print("\tadding " + singleSCC.toString() + " to allSCCs");
+				
+				
 				allSCCs.add(singleSCC);
-
-				print(">>all SCCs: " + allSCCs.toString());
+//				visitTransposedTree = new VisitForest(transposedGraph, VisitType.DFS);
 			}
 		}
-		
-		print("\ncheck-printing visitTransposedForest AFTER visit");
-		for(int i = 0; i < transposedGraph.size(); ++i) {
-			print("vertex " + i + ":\tstart: " + visitTransposedForest.getStartTime(i) + "\tend: " + visitTransposedForest.getEndTime(i) + "\t\tcolor: " + visitTransposedForest.getColor(i));
-		}
-
+//		print(allSCCs.toString());
 		return allSCCs;
 	}
 

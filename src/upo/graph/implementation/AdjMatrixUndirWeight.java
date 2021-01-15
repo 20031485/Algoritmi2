@@ -17,6 +17,7 @@ import upo.graph.base.VisitForest.VisitType;
  */
 public class AdjMatrixUndirWeight implements WeightedGraph{
 	private double[][] weight;
+	private int time;
 	
 	public AdjMatrixUndirWeight() {
 		weight = new double [1][1];
@@ -71,21 +72,17 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	}
 	
 	@Override
-	//indice? contenuto? wtf?
 	public int addVertex() {
 		//increase the matrix size by 1 per side
-//		System.out.println("Current size: "+weight.length+"x"+weight.length);
 		double[][] newWeight = new double[weight.length + 1][weight.length + 1];
-//		System.out.println("New size: "+newWeight.length+"x"+newWeight.length);
 		for(int i = 0; i < newWeight.length; ++i) {
 			for(int j = 0; j < newWeight.length; ++j) {
-//				System.out.println("i: "+i+"; j: "+j);
 				//if in the last row/column, weight is Double.MAX_VALUE
 				if((i == newWeight.length - 1 && j < newWeight.length - 1) 
 						|| (i < newWeight.length - 1 && j == newWeight.length - 1)) {
 					newWeight[i][j] = Double.MAX_VALUE;
 				}
-				//if on the diagona, weight is 0
+				//if on the diagonal, weight is 0
 				else if (i == j) {
 					newWeight[i][j] = 0;
 				}
@@ -169,17 +166,6 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		else
 			System.out.println("That edge already exists!");
 	}
-	
-	//NON SERVE: c'è già setEdgeWeight
-//	//updates the edge between source and target with weight
-//	public void putEdge(int sourceVertexIndex, int targetVertexIndex, double weight) {
-//		if(!(sourceVertexIndex >= 0 && sourceVertexIndex < this.weight.length)
-//				|| !(targetVertexIndex >= 0 && targetVertexIndex < this.weight.length))
-//			throw new IllegalArgumentException();
-//		this.weight[sourceVertexIndex][targetVertexIndex] = weight;
-//		this.weight[targetVertexIndex][sourceVertexIndex] = weight; //matrix must be symmetrical
-//		
-//	}
 	
 	@Override
 	public boolean containsEdge(int sourceVertexIndex, int targetVertexIndex) throws IllegalArgumentException {
@@ -286,7 +272,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	}
 	
 	private VisitForest genericSearch(int sourceVertex, Fringe<Integer> fringe, VisitForest visitForest) {
-		int time = 0;
+//		int time = 0;
 		visitForest.setColor(sourceVertex, Color.GRAY);
 		visitForest.setStartTime(sourceVertex, time);
 		fringe.add(sourceVertex);
@@ -329,51 +315,63 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		return visitForest;
 	}
 	
-	
-	/*
-	 * TODO: sistemare la genericSearch perchè non funziona (sembrerebbe una BFS non totale, solo del pezzo di grafo connesso da cui parte)
-	 * */
 	@Override
 	public VisitForest getBFSTree(int startingVertex) throws UnsupportedOperationException, IllegalArgumentException {
 		if(!(startingVertex >= 0 && startingVertex < weight.length))
 			throw new IllegalArgumentException();
-		return this.genericSearch(startingVertex, new Queue<Integer>(), new VisitForest(this, VisitType.BFS));
+		
+		time = 0;
+		
+		VisitForest visitForest = new VisitForest(this, VisitType.BFS);
+		visitForest = genericSearch(startingVertex, new Queue<Integer>(), visitForest);
+
+		return visitForest;
 	}
-	
-	/*
-	 * TODO: come per la BFS
-	 * */
+
 	@Override
 	public VisitForest getDFSTree(int startingVertex) throws UnsupportedOperationException, IllegalArgumentException {
 		if(!(startingVertex >= 0 && startingVertex < weight.length))
 			throw new IllegalArgumentException();
-		return this.genericSearch(startingVertex, new Stack<Integer>(), new VisitForest(this, VisitType.DFS));
 		
-//		throw new UnsupportedOperationException("This graph does not support DFS search operations!");
+		time = 0;
+		
+		VisitForest visitForest = new VisitForest(this, VisitType.DFS);
+		visitForest = genericSearch(startingVertex, new Stack<Integer>(), visitForest);
+		
+		return visitForest;
 	}
-	
-	
 	
 	@Override
 	public VisitForest getDFSTOTForest(int startingVertex)
 			throws UnsupportedOperationException, IllegalArgumentException {
-		/*if(!(startingVertex >= 0 && startingVertex < weight.length))
+		if(!(startingVertex >= 0 && startingVertex < weight.length))
 			throw new IllegalArgumentException();
-		
+
+		time = 0;
 		VisitForest visitForest = new VisitForest(this, VisitType.DFS_TOT);
 		for(int i = 0; i < weight.length; ++i) {
-			if(visitForest.getColor(i) == Color.WHITE)
-				genericSearch(i, new Stack<Integer>(), visitForest);
+			if(visitForest.getColor(i) == Color.WHITE) {
+				visitForest = genericSearch(i, new Stack<Integer>(), visitForest);
+			}
 		}
-		return visitForest;*/
-		throw new UnsupportedOperationException("This graph does not support DFSTOT forest operations!");
+		
+		return visitForest;
 	}
 	
 	@Override
-	//no
+	//total search that follows the order expressed by vertexOrdering
 	public VisitForest getDFSTOTForest(int[] vertexOrdering)
 			throws UnsupportedOperationException, IllegalArgumentException {
-		throw new UnsupportedOperationException("This graph does not support DFSTOT forest operations!");
+		
+		time = 0;
+		VisitForest visitForest = new VisitForest(this, VisitType.DFS_TOT);
+		for(int i = 0; i < weight.length; ++i) {
+			if(visitForest.getColor(vertexOrdering[i]) == Color.WHITE) {
+				visitForest = genericSearch(vertexOrdering[i], new Stack<Integer>(), visitForest);
+			}
+		}
+		
+		return visitForest;
 	}
 	
 	//no
@@ -387,13 +385,40 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		throw new UnsupportedOperationException("This graph does not support SCC operations - this graph is not directed!");
 	}
 	
-	
-	/*
-	 * TODO: fargli supportare le CC
-	 * */
 	@Override
 	public Set<Set<Integer>> connectedComponents() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("This graph does not support CC operations!");
-		//sticazzi, le supporta eccome
+		if(isDirected()) {
+			throw new UnsupportedOperationException("Cannot find connected components of a directed graph!");
+		}
+		
+		//initialize
+		Set<Set<Integer>> allCCs = new HashSet<>();
+		Set<Integer> singleCC = null;
+		
+		VisitForest visitForest = new VisitForest(this, VisitType.DFS);
+		VisitForest visitTree = null;
+		
+		//cycle-search for CCs
+		for(int i = 0; i < weight.length; ++i) {
+			if(visitForest.getColor(i) == Color.WHITE) {
+				print("CC visiting vertex " + i);
+				//get DFS tree, then add it to the forest
+				visitTree = getDFSTree(i);
+				visitForest = genericSearch(i, new Stack<Integer>(), visitForest);
+				
+				//initialize empty CC
+				singleCC = new HashSet<Integer>();
+				
+				//add the new component from the tree
+				for(int j = 0; j < weight.length; ++j)
+					if(visitTree.getColor(j) == Color.BLACK)
+						singleCC.add(new Integer(j));
+				
+				//add the new CC to the group of CCs
+				allCCs.add(singleCC);
+			}
+		}
+		
+		return allCCs;
 	}
 }

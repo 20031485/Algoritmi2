@@ -220,7 +220,7 @@ class AdjListDirTest {
 		
 		ald.print();
 		
-		ald.stronglyConnectedComponents();
+		System.out.println("Strongly Connected Components: " + ald.stronglyConnectedComponents().toString());
 	}
 
 }

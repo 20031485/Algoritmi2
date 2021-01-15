@@ -61,13 +61,16 @@ class AdjMatrixUndirWeightTest {
 	@Test
 	void test2() {
 		AdjMatrixUndirWeight amuw = new AdjMatrixUndirWeight();
+		System.out.println("\nPrinting new AdjMatrixUndirWeight...");
 		amuw.print();
 		int n = 9;
 		
+		System.out.println("\nAdding " + n + " vertices (tot: " + (n + 1) + ")...");
 		for(int i = 0; i < n; ++i) {
 			amuw.addVertex();
 		}
 		
+		System.out.println("\nAdding edges and respective weights...");
 		amuw.addEdge(0, 1, 1);
 		amuw.addEdge(0, 5, 1);
 		amuw.addEdge(0, 4, 1);
@@ -75,8 +78,7 @@ class AdjMatrixUndirWeightTest {
 		amuw.addEdge(2, 6, 1);
 		amuw.addEdge(8, 9, 1);
 		
-		System.out.println();
-		
+		System.out.println("\nPrinting current AdjMatrixUndirWeight...");
 		amuw.print();
 		
 		System.out.println("\nBFS visit");
@@ -89,5 +91,11 @@ class AdjMatrixUndirWeightTest {
 		for(int i = 0; i < amuw.size(); ++i)
 			System.out.println("vertex: "+i+" start: "+visitDFS.getStartTime(i) +" end: "+ visitDFS.getEndTime(i));
 		
+		System.out.println("\nDFSTOT visit");
+		VisitForest visitDFSTOT = amuw.getDFSTOTForest(0);
+		for(int i = 0; i < amuw.size(); ++i)
+			System.out.println("vertex: "+i+" start: "+visitDFSTOT.getStartTime(i) +" end: "+ visitDFSTOT.getEndTime(i));
+		
+		System.out.println("\nConnected Components: " + amuw.connectedComponents().toString());		
 	}
 }
