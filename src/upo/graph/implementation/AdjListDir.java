@@ -57,16 +57,23 @@ public class AdjListDir implements Graph{
 		}
 		
 		public void addAdjacent(Vertex v) {
-//			System.out.println("Adding adjacent vertex "+v.getValue()+" to "+this.getValue());
 			this.adjacents.addLast(v);
-//			for(int i = 0; i < adjacents.size(); ++i)
-//				System.out.print(adjacents.get(i).getValue()+" ");
-//			System.out.println();
 		}
-		
-//		public void removeAdjacent(Vertex v) {
-//			this.adjacents.remove(v.getValue());
-//		}
+		protected Integer getStart() {
+			return this.start;
+		}
+
+		protected void setStart(Integer start) {
+			this.start = start;
+		}
+
+		protected Integer getEnd() {
+			return this.end;
+		}
+
+		protected void setEnd(Integer end) {
+			this.end = end;
+		}
 	}
 	
 	//fields
@@ -108,13 +115,13 @@ public class AdjListDir implements Graph{
 		String name = null;
 		Vertex newVertex = new Vertex(vertices.size());
 		vertices.add(newVertex);
-//		System.out.println("Vertex "+newVertex.getValue()+" added!");
-		//restituisce l'indice del vertice appena aggiunto (l'ultimo)
+		
 		return vertices.get(vertices.size() - 1).getValue();
 	}
 	
 	public int addVertex(Vertex vertex) {
 		vertices.add(vertex);
+		
 		return vertices.get(vertices.size() - 1).getValue();
 	}
 
@@ -122,6 +129,7 @@ public class AdjListDir implements Graph{
 	public boolean containsVertex(int index) {
 		if(index < vertices.size() && index >= 0)
 			return true;
+		
 		return false;
 	}
 
@@ -132,6 +140,7 @@ public class AdjListDir implements Graph{
 		else {
 			for(int i = 0; i < vertices.size(); ++i) {
 				int j = 0;
+				
 				while(j < vertices.get(i).getAdjacents().size()) {
 					//delete if val == index
 					if(index == vertices.get(i).getAdjacents().get(j).getValue()) {
@@ -140,6 +149,7 @@ public class AdjListDir implements Graph{
 					}
 					j++;
 				}
+				
 				if(index < vertices.get(i).getValue())
 					vertices.get(i).decrVal();
 			}
@@ -151,8 +161,6 @@ public class AdjListDir implements Graph{
 	public void addEdge(int sourceVertexIndex, int targetVertexIndex) throws IllegalArgumentException {
 		//check parameters
 		if((containsVertex(sourceVertexIndex) && containsVertex(targetVertexIndex))) {
-			//se l'arco esiste, non fa nulla
-			//se l'arco non esiste, lo aggiungo
 			if(!this.containsEdge(sourceVertexIndex, targetVertexIndex)) {
 				vertices.get(sourceVertexIndex).addAdjacent(vertices.get(targetVertexIndex));
 			}
@@ -232,17 +240,13 @@ public class AdjListDir implements Graph{
 
 	@Override
 	public boolean isCyclic() {
-//		print("entering isCyclic");
 		//initialize graph
 		VisitForest visitForest = new VisitForest(this, VisitType.DFS);
 		
 		//call recursive cycle search on all vertices
-		for(Vertex u : vertices) {
-//			print("isCyclic: Checking " + u.getValue());
-			
+		for(Vertex u : vertices) {			
 			//exit as soon as a cycle is found
 			if(visitForest.getColor(u.getValue()) == Color.WHITE && recCyclicSearch(this, u.getValue(), visitForest)) {
-//				System.out.println("[ERROR]: Cycle found for " + u.getValue() + "!");
 				return true;
 			}
 		}
@@ -261,23 +265,16 @@ public class AdjListDir implements Graph{
 		//search recursively for cycles in sourceVertex's adjacents
 		for(Integer v : adj) {
 			if(visitForest.getColor(v) == Color.WHITE) {
-//				System.out.println("recCyclicSearch: Checking " + v);
 				visitForest.setParent(v, sourceVertex);
 				if(recCyclicSearch(graph, v, visitForest)) {
-//					System.out.println("recCyclicSearch: No cycles for " + v);
 					return true;
 				}
 			}
 			else if(visitForest.getColor(v) == Color.GRAY) {
-//				print("recCyclicSearch: no cycles for v");
 				return true;
 			}
-//			else if(v != visitForest.getParent(sourceVertex)) {
-//				System.out.println("recCyclicSearch: No cycles for " + v);
-//				return true;
-//			}
 		}
-//		print("recCyclicSearch: no cycles for " + sourceVertex);
+		
 		visitForest.setColor(sourceVertex, Color.BLACK);
 		return false;
 	}
@@ -290,7 +287,6 @@ public class AdjListDir implements Graph{
 	}
 
 	private VisitForest genericSearch(int sourceVertex, Fringe<Integer> fringe, VisitForest visitForest) {
-//		int time = 0;
 //		int distance = 0;
 		visitForest.setColor(sourceVertex, Color.GRAY);
 		visitForest.setStartTime(sourceVertex, time);
@@ -298,7 +294,6 @@ public class AdjListDir implements Graph{
 		fringe.add(sourceVertex);
 		time++;
 //		distance++;
-//		print("\tBEGIN genericSearch");
 		//while some vertices are grey
 		while(!fringe.isEmpty()) {
 			
@@ -309,7 +304,6 @@ public class AdjListDir implements Graph{
 			
 			//get its adjacent vertices
 			Set<Integer> adjacentVertices = this.getAdjacent(u);
-//			print("\t>>>adjacents to " + u + ": " + adjacentVertices.toString());
 			
 			//for each adj vertex
 			for(Integer a : adjacentVertices) {
@@ -322,7 +316,6 @@ public class AdjListDir implements Graph{
 			
 			//if u has no adjacent vertices
 			if(v == null) {
-//				print("\t\t[genericSearch]: setting " + u + " to " + Color.BLACK);
 				visitForest.setColor(u, Color.BLACK);
 				visitForest.setEndTime(u, time);
 				fringe.remove();
@@ -331,7 +324,6 @@ public class AdjListDir implements Graph{
 			
 			//if u has at least one adjacent vertex
 			else {
-//				print("\t\t[genericSearch]: setting " + u + " to " + Color.GRAY);
 				visitForest.setColor(v, Color.GRAY);
 				visitForest.setStartTime(v, time);
 //				visitForest.setDistance(v, distance);
@@ -341,8 +333,7 @@ public class AdjListDir implements Graph{
 //				distance++;
 			}
 		}
-//		print("\tEND genericSearch");
-		//return TREE (not forest) populated with times, relationships and distances
+
 		return visitForest;
 	}
 	
@@ -381,20 +372,17 @@ public class AdjListDir implements Graph{
 	public VisitForest getDFSTOTForest(int startingVertex)
 			throws UnsupportedOperationException, IllegalArgumentException {
 		
-//		print("\tBEGIN getDFSTOTForest");
 		time = 0;
 		if(containsVertex(startingVertex)) {
 			VisitForest visitForest = new VisitForest(this, VisitType.DFS_TOT);
-//			print("\n\t\tchoosing vertex " + startingVertex + " for DFSTOT");
 			visitForest = genericSearch(vertices.get(startingVertex).getValue(), new Stack<Integer>(), visitForest);
+		
 			for(Vertex u : vertices) {
 				if(visitForest.getColor(u.getValue()) == Color.WHITE) {
-//					print("\n\t\tchoosing vertex " + u.getValue() + " for DFSTOT");
 					visitForest = genericSearch(u.getValue(), new Stack<Integer>(), visitForest);
 				}
 			}
-//			print("\tEND getDFSTOTForest");
-//			print("roots: " + visitForest.getRoots().toString());
+
 			return visitForest;
 		}
 		else
@@ -479,11 +467,15 @@ public class AdjListDir implements Graph{
 		int vertexOrdering[] = new int[this.size()];
 		
 		//descend-sort vertices according to their end-visit time
-		LinkedList<VisitedVertex> visited = new LinkedList<>();
+		LinkedList<Vertex> visited = new LinkedList<>();
+		
 		for(int i = 0; i < size(); ++i) {
-			visited.add(new VisitedVertex(i, visitForest.getStartTime(i), visitForest.getEndTime(i)));
+			Vertex v = new Vertex(i);
+			v.setStart(visitForest.getStartTime(i));
+			v.setEnd(visitForest.getEndTime(i));
+			visited.add(v);
 		}
-		visited.sort((VisitedVertex v1, VisitedVertex v2) -> v2.getEnd() - v1.getEnd());
+		visited.sort((Vertex v1, Vertex v2) -> v2.getEnd() - v1.getEnd());
 		
 		//fill vertexOrdering with the vertices' values (they are sorted by descending end-visit times)
 		for(int i = 0; i < vertexOrdering.length; ++i)
@@ -491,48 +483,34 @@ public class AdjListDir implements Graph{
 
 		//transpose graph
 		AdjListDir transposedGraph = this.transpose();
-		transposedGraph.print();
+//		transposedGraph.print();
 		
 		//initialize handlers for the next DFSTOT search
 		VisitForest visitTransposedForest = new VisitForest(transposedGraph, VisitType.DFS_TOT);
 		VisitForest visitTransposedTree = null;
 		
-		print("\n\n\n");
-		//perform DFS visit
-//		time = 0;
 		for(int i = 0; i < vertexOrdering.length; ++i) {
 			if(visitTransposedForest.getColor(vertexOrdering[i]) == Color.WHITE) {
-				print("vertexOrdering: " + vertexOrdering[i]);
+
 				time = 0;
 				visitTransposedTree = transposedGraph.getDFSTree(vertexOrdering[i]);
-//				time = 0;
 				visitTransposedForest = transposedGraph.genericSearch(vertexOrdering[i], new Stack<Integer>(), visitTransposedForest);
 				singleSCC = new HashSet<Integer>();
-//				print("\n\ntransposedTree");
-//				printVisit(visitTransposedTree);
-//				print("\n\ntransposedForest:");
-//				printVisit(visitTransposedForest);
+				
 				for(int j = 0; j < transposedGraph.size(); ++j) {
 					
 					if(visitTransposedTree.getColor(j) == Color.BLACK) {
 						if(!auxSCC.contains(j)) {
-//							print("\tadding " + j + " to singleSCC");
 							singleSCC.add(j);
 						}
 						auxSCC.add(j);
 					}
 					
-//					print("aux: " + auxSCC.toString());
-				}
-				
-//				print("\tadding " + singleSCC.toString() + " to allSCCs");
-				
+				}				
 				
 				allSCCs.add(singleSCC);
-//				visitTransposedTree = new VisitForest(transposedGraph, VisitType.DFS);
 			}
 		}
-//		print(allSCCs.toString());
 		return allSCCs;
 	}
 
@@ -560,48 +538,5 @@ public class AdjListDir implements Graph{
 	
 	private void print(String debugMsg) {
 		System.out.println(debugMsg);
-	}
-	
-	
-	
-	//class for handling start/end visit times of vertices
-	private class VisitedVertex{
-		private Integer vertex;
-		private Integer start;
-		private Integer end;
-		
-		public VisitedVertex(Integer vertex, Integer start, Integer end){
-			this.vertex = vertex;
-			this.start = start;
-			this.end = end;
-		}
-		
-		protected Integer getVertex() {
-			return vertex;
-		}
-		
-		protected Integer getValue() {
-			return vertex;
-		}
-
-		protected void setVertex(Integer vertex) {
-			this.vertex = vertex;
-		}
-
-		protected Integer getStart() {
-			return start;
-		}
-
-		protected void setStart(Integer start) {
-			this.start = start;
-		}
-
-		protected Integer getEnd() {
-			return end;
-		}
-
-		protected void setEnd(Integer end) {
-			this.end = end;
-		}
 	}
 }

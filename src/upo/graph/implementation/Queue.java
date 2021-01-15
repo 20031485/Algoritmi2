@@ -2,6 +2,12 @@ package upo.graph.implementation;
 
 import java.util.LinkedList;
 
+/**
+ * 
+ * @author @author Lorenzo Rossi 20031485
+ *
+ * 
+ */
 public class Queue<E> implements Fringe<E>{
 	private LinkedList<E> queue;
 	

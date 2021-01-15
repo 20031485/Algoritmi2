@@ -1,5 +1,10 @@
 package upo.graph.implementation;
-
+/**
+ * 
+ * @author @author Lorenzo Rossi 20031485
+ *
+ * 
+ */
 public interface Fringe<E> {
 	//add element to fringe
 	public void add(E vertex);

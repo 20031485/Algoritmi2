@@ -12,7 +12,7 @@ import upo.graph.base.VisitForest.VisitType;
 /**
  * Implementazione mediante <strong>matrice di adiacenza</strong> di un grafo <strong>non orientato pesato</strong>.
  * 
- * @author Nome Cognome Matricola
+ * @author Lorenzo Rossi 20031485
  *
  */
 public class AdjMatrixUndirWeight implements WeightedGraph{
@@ -29,7 +29,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		for(int i=0; i<this.size(); ++i) {
 			for(int j=0; j<this.size(); ++j) {
 				if(i == j)	
-					weight[i][j]= 0;	//riempio la diagonale di zeri
+					weight[i][j]= 0;
 				else 
 					weight[i][j] = Double.MAX_VALUE; //fill all distances with infinity (max double val)
 			}
@@ -91,7 +91,9 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 					newWeight[i][j] = weight[i][j];
 			}
 		}
-		weight = newWeight; //point to the new matrix
+		
+		//point to the new matrix
+		weight = newWeight; 
 		return weight.length;
 	}
 	
@@ -99,6 +101,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	public boolean containsVertex(int index) {
 		if(index < weight.length && index >= 0)
 			return true;
+		
 		return false;
 	}
 	
@@ -106,6 +109,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	public void removeVertex(int index) throws NoSuchElementException {
 		if(!this.containsVertex(index))
 			throw new NoSuchElementException();
+		
 		else {
 			int newSize = weight.length - 1;
 			double[][] newWeight = new double[newSize][newSize];
@@ -127,7 +131,8 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 					}
 				}
 			}
-			weight = newWeight; //point to the new matrix
+			//point to the new matrix
+			weight = newWeight; 
 		}
 	}
 	
@@ -175,6 +180,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		else
 			if(weight[sourceVertexIndex][targetVertexIndex] < Double.MAX_VALUE)
 				return true;
+		
 		return false;
 	}
 	
@@ -184,14 +190,15 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		if(!(sourceVertexIndex >= 0 && sourceVertexIndex < weight.length)
 				|| !(targetVertexIndex >= 0 && targetVertexIndex < weight.length))
 			throw new IllegalArgumentException();
+		
 		else {
 			if(weight[sourceVertexIndex][targetVertexIndex] != Double.MAX_VALUE) {
 				weight[sourceVertexIndex][targetVertexIndex] = Double.MAX_VALUE;
 				weight[targetVertexIndex][sourceVertexIndex] = Double.MAX_VALUE;
 			}
 			else {
-				System.out.println("The edge you are trying to remove does not exist! Throwing exception...");
-				throw new NoSuchElementException();
+//				System.out.println("The edge you are trying to remove does not exist! Throwing exception...");
+				throw new NoSuchElementException("The edge you are trying to remove does not exist! Throwing exception...");
 			}
 		}
 	}
@@ -205,8 +212,8 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 			if(weight[sourceVertexIndex][targetVertexIndex] != Double.MAX_VALUE)
 				return weight[sourceVertexIndex][targetVertexIndex];
 			else {
-				System.out.println("The edge you are trying to visit does not exist! Throwing exception...");
-				throw new NoSuchElementException();
+//				System.out.println("The edge you are trying to visit does not exist! Throwing exception...");
+				throw new NoSuchElementException("The edge you are trying to remove does not exist! Throwing exception...");
 			}
 		}
 	}
@@ -261,7 +268,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	
 	@Override
 	public boolean isCyclic() {
-		//TODO this might come in handy, let's see if we have to implement it
+		//no need for DAG -> no need for cycle check
 		return false;
 	}
 	

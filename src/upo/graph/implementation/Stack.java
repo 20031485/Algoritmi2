@@ -2,6 +2,12 @@ package upo.graph.implementation;
 
 import java.util.LinkedList;
 
+/**
+ * 
+ * @author @author Lorenzo Rossi 20031485
+ *
+ * 
+ */
 public class Stack<E> implements Fringe<E> {
 	//fields
 	private LinkedList<E> stack;
