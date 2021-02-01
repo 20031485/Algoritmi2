@@ -8,6 +8,7 @@ import java.util.Set;
 import upo.graph.base.*;
 import upo.graph.base.VisitForest.Color;
 import upo.graph.base.VisitForest.VisitType;
+import upo.graph.implementation.AdjListDir.Vertex;
 
 /**
  * Implementazione mediante <strong>matrice di adiacenza</strong> di un grafo <strong>non orientato pesato</strong>.
@@ -24,6 +25,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		weight[0][0] = 0;
 	}
 	
+	//is it useful?
 	public AdjMatrixUndirWeight(Set<Integer> vertexIndex) {
 		weight = new double [this.size()][this.size()];
 		for(int i=0; i<this.size(); ++i) {
@@ -67,7 +69,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		}
 	}
 	
-	private void print(String debugMsg) {
+	void print(String debugMsg) {
 		System.out.println(debugMsg);
 	}
 	
@@ -268,7 +270,54 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	
 	@Override
 	public boolean isCyclic() {
-		//no need for DAG -> no need for cycle check
+		print("\tentering isCyclic");
+		//initialize graph
+		VisitForest visitForest = new VisitForest(this, VisitType.DFS);
+		
+		//call recursive cycle search on all vertices
+		for(int i = 0; i < size(); ++i) {
+			//exit as soon as a cycle is found
+			if(visitForest.getColor(i) == Color.WHITE && recCyclicSearch(this, i, visitForest)){
+				return true;
+			}
+		}
+		
+		//return false if no cycle is found
+		return false;
+	}
+	
+	public boolean recCyclicSearch(AdjMatrixUndirWeight graph, int u, VisitForest visitForest) {
+		print("\t\tentering recCyclicSearch");
+		//color di u = gray
+		visitForest.setColor(u, Color.GRAY);
+//		print("\t\tparent of " + u +" "+visitForest.getParent(u)+"");
+		
+		Set<Integer> adjacents = getAdjacent(u);
+		//foreach adjacent to u
+		for(int v : adjacents) {
+			//if color = white
+			if(visitForest.getColor(v) == Color.WHITE) {
+				//set u as parent of v
+				visitForest.setParent(v, u);
+				
+				//if recCyclicSearch(..., v, ...)
+				if(recCyclicSearch(graph, v, visitForest))
+					//return true
+					return true;
+				
+				//else if v is not parent of u
+				else try{
+					if(visitForest.getParent(u) != v)
+					//return true
+					return true;
+				}
+				catch(NullPointerException e) {
+//					return false;
+					print("parent of " + u + " is null!");
+				}
+			}
+		}
+		//color di u = black
 		return false;
 	}
 	

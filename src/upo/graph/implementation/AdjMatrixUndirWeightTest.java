@@ -77,9 +77,15 @@ class AdjMatrixUndirWeightTest {
 		amuw.addEdge(2, 3, 1);
 		amuw.addEdge(2, 6, 1);
 		amuw.addEdge(8, 9, 1);
+//		amuw.addEdge(3, 0, 1);
 		
 		System.out.println("\nPrinting current AdjMatrixUndirWeight...");
 		amuw.print();
+		
+		
+//		amuw.print("cycle-check");
+		System.out.println("\nCycle-check");
+		assertFalse(amuw.isCyclic());
 		
 		System.out.println("\nBFS visit");
 		VisitForest visitBFS = amuw.getBFSTree(0);
