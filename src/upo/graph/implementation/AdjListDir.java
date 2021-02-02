@@ -287,13 +287,11 @@ public class AdjListDir implements Graph{
 	}
 
 	private VisitForest genericSearch(int sourceVertex, Fringe<Integer> fringe, VisitForest visitForest) {
-//		int distance = 0;
 		visitForest.setColor(sourceVertex, Color.GRAY);
 		visitForest.setStartTime(sourceVertex, time);
-//		visitForest.setDistance(sourceVertex, distance);
 		fringe.add(sourceVertex);
 		time++;
-//		distance++;
+
 		//while some vertices are grey
 		while(!fringe.isEmpty()) {
 			
@@ -326,11 +324,9 @@ public class AdjListDir implements Graph{
 			else {
 				visitForest.setColor(v, Color.GRAY);
 				visitForest.setStartTime(v, time);
-//				visitForest.setDistance(v, distance);
 				visitForest.setParent(v, u);
 				fringe.add(v);
 				time++;
-//				distance++;
 			}
 		}
 
@@ -342,8 +338,7 @@ public class AdjListDir implements Graph{
 			System.out.println(
 					"vertex: "+vertices.get(i).getValue()+
 					"\tstart: "+visitForest.getStartTime(i)+
-					"\tend: "+visitForest.getEndTime(i)//+
-//					"distance: "+visitForest.getDistance(i)
+					"\tend: "+visitForest.getEndTime(i)
 			);
 		}
 	}
@@ -426,7 +421,6 @@ public class AdjListDir implements Graph{
 		for(int i = 0; i < this.size(); ++i) {
 			//if a vertex is not visited, launch DFSSearch on it
 			if(visitForest.getColor(i) == Color.WHITE) {
-//				print("launching topologicalDFSSort on vertex " + i);
 				topologicalDFSSort(i, ord, /*t,*/ visitForest);
 			}
 		}
@@ -483,7 +477,6 @@ public class AdjListDir implements Graph{
 
 		//transpose graph
 		AdjListDir transposedGraph = this.transpose();
-//		transposedGraph.print();
 		
 		//initialize handlers for the next DFSTOT search
 		VisitForest visitTransposedForest = new VisitForest(transposedGraph, VisitType.DFS_TOT);

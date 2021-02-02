@@ -1,6 +1,7 @@
 package upo.graph.implementation;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
@@ -11,7 +12,7 @@ import upo.graph.base.VisitForest.VisitType;
 import upo.graph.implementation.AdjListDir.Vertex;
 
 /**
- * Implementazione mediante <strong>matrice di adiacenza</strong> di un grafo <strong>non orientato pesato</strong>.
+ * Implementazione mediante <strong>matrice di adiacenza</strong> di un grafo <strong>non orientato</strong> e <strong>pesato</strong>.
  * 
  * @author Lorenzo Rossi 20031485
  *
@@ -25,7 +26,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		weight[0][0] = 0;
 	}
 	
-	//is it useful?
+	//might be useful if starting from a set of vertices
 	public AdjMatrixUndirWeight(Set<Integer> vertexIndex) {
 		weight = new double [this.size()][this.size()];
 		for(int i=0; i<this.size(); ++i) {
@@ -38,7 +39,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		}
 	}
 	
-	void print() {
+	public void print() {
 		if(weight == null) {
 			print("there are no vertices yet!");
 		}
@@ -145,7 +146,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 				|| !(targetVertexIndex >= 0 && targetVertexIndex < weight.length))
 			throw new IllegalArgumentException();
 		if(weight[sourceVertexIndex][targetVertexIndex] == Double.MAX_VALUE) {
-			System.out.println("Insert edge weight: ");
+			System.out.println("Insert edge <"+sourceVertexIndex+","+targetVertexIndex+">'s weight: ");
 			double w;
 			Scanner scanner = new Scanner(System.in);
 			w = Double.parseDouble(scanner.nextLine());
@@ -199,7 +200,6 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 				weight[targetVertexIndex][sourceVertexIndex] = Double.MAX_VALUE;
 			}
 			else {
-//				System.out.println("The edge you are trying to remove does not exist! Throwing exception...");
 				throw new NoSuchElementException("The edge you are trying to remove does not exist! Throwing exception...");
 			}
 		}
@@ -214,7 +214,6 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 			if(weight[sourceVertexIndex][targetVertexIndex] != Double.MAX_VALUE)
 				return weight[sourceVertexIndex][targetVertexIndex];
 			else {
-//				System.out.println("The edge you are trying to visit does not exist! Throwing exception...");
 				throw new NoSuchElementException("The edge you are trying to remove does not exist! Throwing exception...");
 			}
 		}
@@ -270,7 +269,7 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	
 	@Override
 	public boolean isCyclic() {
-		print("\tentering isCyclic");
+//		print("\tentering isCyclic");
 		//initialize graph
 		VisitForest visitForest = new VisitForest(this, VisitType.DFS);
 		
@@ -287,12 +286,11 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	}
 	
 	public boolean recCyclicSearch(AdjMatrixUndirWeight graph, int u, VisitForest visitForest) {
-		print("\t\tentering recCyclicSearch");
-		//color di u = gray
+		//color of u = gray
 		visitForest.setColor(u, Color.GRAY);
-//		print("\t\tparent of " + u +" "+visitForest.getParent(u)+"");
 		
 		Set<Integer> adjacents = getAdjacent(u);
+		
 		//foreach adjacent to u
 		for(int v : adjacents) {
 			//if color = white
@@ -308,16 +306,14 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 				//else if v is not parent of u
 				else try{
 					if(visitForest.getParent(u) != v)
-					//return true
-					return true;
+						return true;
 				}
 				catch(NullPointerException e) {
-//					return false;
-					print("parent of " + u + " is null!");
+					//no operation
 				}
 			}
 		}
-		//color di u = black
+		//color of u = black
 		return false;
 	}
 	
@@ -328,7 +324,6 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 	}
 	
 	private VisitForest genericSearch(int sourceVertex, Fringe<Integer> fringe, VisitForest visitForest) {
-//		int time = 0;
 		visitForest.setColor(sourceVertex, Color.GRAY);
 		visitForest.setStartTime(sourceVertex, time);
 		fringe.add(sourceVertex);
@@ -457,7 +452,6 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		//cycle-search for CCs
 		for(int i = 0; i < weight.length; ++i) {
 			if(visitForest.getColor(i) == Color.WHITE) {
-				print("CC visiting vertex " + i);
 				//get DFS tree, then add it to the forest
 				visitTree = getDFSTree(i);
 				visitForest = genericSearch(i, new Stack<Integer>(), visitForest);
@@ -476,5 +470,138 @@ public class AdjMatrixUndirWeight implements WeightedGraph{
 		}
 		
 		return allCCs;
+	}
+
+	@Override
+	public WeightedGraph getBellmanFordShortestPaths(int startingVertex)
+			throws UnsupportedOperationException, IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public WeightedGraph getDijkstraShortestPaths(int startingVertex)
+			throws UnsupportedOperationException, IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public WeightedGraph getPrimMST(int startingVertex) throws UnsupportedOperationException, IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public WeightedGraph getKruskalMST() throws UnsupportedOperationException {
+		if(!isConnected())
+			throw new UnsupportedOperationException("Trying to find MST of non-connected graph!");
+
+		int edgeCount = 0;
+		//THIS is the "A" (Kruskal Tree) of the notes!!!!
+		AdjMatrixUndirWeight mst = new AdjMatrixUndirWeight();
+		
+		//add the same number of vertices of the initial graph
+		for(int i = 0; i < weight.length - 1; ++i)
+			mst.addVertex();
+
+		LinkedList<Edge> s = new LinkedList<>();
+		
+		//fill it with all the edges
+		for(int i = 0; i < weight.length; ++i) {
+			for(int j = 0; j < weight.length; ++j) {
+				//it is a symmetrical matrix, so we only need
+				//to visit its upper (or lower) half, without
+				//visiting the diagonal
+				//PLUS
+				//don't add an edge if its weight is MAX_DOUBLE (i.e. infinity)
+				if((i < j) && (weight[i][j] != Double.MAX_VALUE)) {
+					s.add(new Edge(i, j, weight[i][j]));
+				}
+			}
+		}
+
+		//sort them by non-decreasing weight
+		s.sort((Edge e1, Edge e2) -> Double.compare(e1.getWeight(), e2.getWeight()));
+		
+		//create unionFind containing the original G vertices as initial single-element collections
+		KUnionFind unionFind = new KUnionFind();
+		
+		for(int i = 0; i < size(); ++i)
+			unionFind.makeSet(i);
+		
+//		for each edge(u, v) in s
+		for(Edge e : s) {
+//			if(count = n-1)
+			if(edgeCount == this.size() - 1)
+				return mst;
+			
+			//union between the two vertices - on success, vertex2's father should be vertex1
+			unionFind.union(e.getVertex1(), e.getVertex2());
+
+			//if vertex2's father is vertex1
+//			if(k-union(u, v))
+			if(e.getVertex1() == unionFind.getParent(e.getVertex2())) {
+				mst.addEdge(e.getVertex1(), e.getVertex2(), weight[e.getVertex1()][e.getVertex2()]);
+				edgeCount++;
+			}
+		}
+		
+		return null;
+	}
+	
+	private class Edge{
+		private int vertex1;
+		private int vertex2;
+		private double weight;
+		
+		Edge(int vertex1, int vertex2, double weight2){
+			this.vertex1 = vertex1;
+			this.vertex2 = vertex2;
+			this.weight = weight2;
+		}
+		
+		protected int getVertex1() {
+			return vertex1;
+		}
+		protected void setVertex1(int vertex1) {
+			this.vertex1 = vertex1;
+		}
+		protected int getVertex2() {
+			return vertex2;
+		}
+		protected void setVertex2(int vertex2) {
+			this.vertex2 = vertex2;
+		}
+		protected double getWeight() {
+			return weight;
+		}
+		protected void setWeight(int weight) {
+			this.weight = weight;
+		}
+	}
+	
+	boolean isConnected() {
+		VisitForest visitForest = new VisitForest(this, VisitType.DFS);
+		visitForest = genericSearch(0, new Stack<Integer>(), visitForest);
+		for(int i = 0; i < weight.length; ++i) {
+			if(i != 0){
+				try {
+					//the next comparison is only written to throw the exception,
+					//in which case the connection check continues
+					if(visitForest.getParent(i) == visitForest.getParent(i));
+				}
+				catch(NullPointerException e) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public WeightedGraph getFloydWarshallShortestPaths() throws UnsupportedOperationException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

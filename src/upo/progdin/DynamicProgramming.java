@@ -20,11 +20,17 @@ public class DynamicProgramming {
 	 * @param weights un vettore contenente in posizione i-esima, per ogni oggetto oi, il suo peso. 
 	 * @param values un vettore contenente in posizione i-esima, per ogni oggetto oi, il suo valore. 
 	 * @param maxWeight la capienza dello zaino.
-	 * @return un vettore di boolean che contiene, in posizione i-esima, true se l'oggetto i-esimo è
+	 * @return un vettore di boolean che contiene, in posizione i-esima, true se l'oggetto i-esimo ï¿½
 	 * incluso nella soluzione, false altrimenti.
 	 */
 	public static boolean[] getKnapsack01(int[] weights, int[] values, int maxWeight) {
 		throw new UnsupportedOperationException("Not yet implemented");
+//		 _____ ___  ____   ___  
+//		 |_   _/ _ \|  _ \ / _ \ 
+//		   | || | | | | | | | | |
+//		   | || |_| | |_| | |_| |
+//		   |_| \___/|____/ \___/ 
+//		                         
 	}
 	
 }
